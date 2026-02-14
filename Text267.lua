@@ -26,9 +26,7 @@ print("CAT ESP: ON")
 -- ======================
 -- SERVICIOS
 -- ======================
-local RunService = game:GetService("RunService")
 local humFolder = workspace:WaitForChild("Hum")
-
 local ESPs = _G.CAT_ESP_DATA
 
 -- ======================
@@ -89,29 +87,31 @@ local function removeESP(model)
 end
 
 -- ======================
--- LOOP
+-- LOOP (ACTUALIZA CADA 1 SEGUNDO)
 -- ======================
-RunService.RenderStepped:Connect(function()
 
-	if not _G.CAT_ESP then return end
+task.spawn(function()
+	while _G.CAT_ESP do
+		
+		local activeModels = {}
 
-	local activeModels = {}
-
-	for _, obj in pairs(humFolder:GetDescendants()) do
-		if obj:IsA("Model") 
-			and (obj.Name == "Man1" or obj.Name == "CatSit") 
-			and obj.Parent 
-			and obj.Parent.Name == "Cat" then
-			
-			activeModels[obj] = true
-			createESP(obj)
+		for _, obj in pairs(humFolder:GetDescendants()) do
+			if obj:IsA("Model") 
+				and (obj.Name == "Man1" or obj.Name == "CatSit") 
+				and obj.Parent 
+				and obj.Parent.Name == "Cat" then
+				
+				activeModels[obj] = true
+				createESP(obj)
+			end
 		end
-	end
 
-	for model,_ in pairs(ESPs) do
-		if not activeModels[model] then
-			removeESP(model)
+		for model,_ in pairs(ESPs) do
+			if not activeModels[model] then
+				removeESP(model)
+			end
 		end
-	end
 
+		task.wait(1) -- 🔥 actualiza cada 1 segundo
+	end
 end)
